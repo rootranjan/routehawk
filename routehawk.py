@@ -8,6 +8,12 @@ across modern web applications and microservices.
 
 import os
 import sys
+
+# Ensure local modules can be imported
+script_dir = os.path.dirname(os.path.abspath(__file__))
+if script_dir not in sys.path:
+    sys.path.insert(0, script_dir)
+
 import time
 import json
 import uuid
