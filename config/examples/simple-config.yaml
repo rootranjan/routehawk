@@ -1,0 +1,64 @@
+# RouteHawk Simple Configuration
+# Basic configuration for getting started with RouteHawk
+
+version: '1.0'
+
+# Basic organization settings
+organization:
+  organization_name: "My Organization"
+  security_baseline: "standard"
+
+# Enable common frameworks
+frameworks:
+  enabled_frameworks:
+    - "nestjs"
+    - "express"
+    - "fastapi"
+    - "go"
+
+# Basic security settings
+security:
+  default_risk_threshold: "medium"
+  enable_ai_analysis: false
+  auth_analysis_enabled: true
+
+# Performance settings
+performance:
+  cache_enabled: true
+  progress_reporting: "enhanced"
+
+# Output preferences
+output:
+  default_formats:
+    - "terminal"
+    - "json"
+
+# Basic custom risk rules
+custom_risk_rules:
+  # Mark admin endpoints as high risk
+  - name: "Admin Endpoints"
+    rule_type: "path_pattern"
+    conditions:
+      patterns:
+        - "/admin/*"
+        - "/management/*"
+    risk_score_modifier: 2.0
+    risk_level_override: "high"
+    description: "Administrative endpoints need extra security"
+    enabled: true
+    tags:
+      - "admin"
+  
+  # Mark payment endpoints as critical
+  - name: "Payment Endpoints"
+    rule_type: "path_pattern"
+    conditions:
+      patterns:
+        - "/payment/*"
+        - "/billing/*"
+    risk_score_modifier: 3.0
+    risk_level_override: "critical"
+    description: "Payment endpoints are business critical"
+    enabled: true
+    tags:
+      - "payment" 

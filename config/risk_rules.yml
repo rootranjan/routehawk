@@ -1,0 +1,499 @@
+# Risk Assessment Rules for RouteHawk Attack Surface Scanner
+# This file defines the rules and scoring criteria for assessing the security risk of discovered routes and endpoints
+
+# Base risk scoring configuration
+risk_scoring:
+  # Risk level thresholds (0.0 to 1.0 scale)
+  thresholds:
+    low: 0.0
+    medium: 0.3
+    high: 0.7
+    critical: 0.9
+  
+  # Default scores for different aspects
+  defaults:
+    base_score: 0.1
+    authenticated_bonus: -0.2  # Negative score reduces risk
+    unauthenticated_penalty: 0.3
+    input_validation_bonus: -0.15
+    no_validation_penalty: 0.25
+
+# HTTP method risk scoring
+http_methods:
+  GET:
+    base_risk: 0.1
+    description: "Read-only operations typically have lower risk"
+  POST:
+    base_risk: 0.4
+    description: "Data creation operations require validation"
+  PUT:
+    base_risk: 0.5
+    description: "Data modification operations are higher risk"
+  DELETE:
+    base_risk: 0.6
+    description: "Data deletion operations are high risk"
+  PATCH:
+    base_risk: 0.4
+    description: "Partial updates require careful validation"
+  OPTIONS:
+    base_risk: 0.05
+    description: "Metadata operations are typically low risk"
+  HEAD:
+    base_risk: 0.05
+    description: "Header-only operations are low risk"
+
+# Path-based risk patterns
+path_patterns:
+  # Administrative interfaces
+  admin_paths:
+    patterns:
+      - "/admin"
+      - "/administrator"
+      - "/admin/*"
+      - "/api/admin"
+      - "/api/v*/admin"
+      - "/management"
+      - "/console"
+      - "/dashboard/admin"
+    risk_multiplier: 2.0
+    severity: "HIGH"
+    description: "Administrative interfaces pose significant risk if not properly secured"
+
+  # Authentication and user management
+  auth_paths:
+    patterns:
+      - "/auth"
+      - "/login"
+      - "/signin"
+      - "/signup"
+      - "/register"
+      - "/logout"
+      - "/password"
+      - "/reset"
+      - "/forgot"
+      - "/api/auth"
+      - "/api/v*/auth"
+      - "/oauth"
+      - "/sso"
+    risk_multiplier: 1.5
+    severity: "MEDIUM"
+    description: "Authentication endpoints require robust security measures"
+
+  # Financial and payment operations
+  financial_paths:
+    patterns:
+      - "/payment"
+      - "/payments"
+      - "/billing"
+      - "/invoice"
+      - "/transaction"
+      - "/transactions"
+      - "/wallet"
+      - "/balance"
+      - "/refund"
+      - "/charge"
+      - "/api/pay"
+      - "/api/v*/payment"
+      - "/api/v*/billing"
+      - "/cashback"
+      - "/rewards"
+      - "/merchant/billing"
+    risk_multiplier: 2.5
+    severity: "HIGH"
+    description: "Financial operations require the highest security standards"
+
+  # User data and privacy
+  user_data_paths:
+    patterns:
+      - "/user"
+      - "/users"
+      - "/profile"
+      - "/account"
+      - "/personal"
+      - "/api/user"
+      - "/api/v*/user"
+      - "/api/v*/profile"
+      - "/member"
+      - "/customer"
+    risk_multiplier: 1.8
+    severity: "MEDIUM"
+    description: "User data endpoints must protect personal information"
+
+  # Internal and debug interfaces
+  internal_paths:
+    patterns:
+      - "/internal"
+      - "/debug"
+      - "/test"
+      - "/dev"
+      - "/staging"
+      - "/health"
+      - "/metrics"
+      - "/status"
+      - "/actuator"
+      - "/api/internal"
+      - "/_debug"
+      - "/.well-known"
+    risk_multiplier: 1.3
+    severity: "MEDIUM"
+    description: "Internal endpoints should not be publicly accessible"
+
+  # File and upload operations
+  file_paths:
+    patterns:
+      - "/upload"
+      - "/download"
+      - "/file"
+      - "/files"
+      - "/media"
+      - "/static"
+      - "/assets"
+      - "/api/upload"
+      - "/api/v*/file"
+    risk_multiplier: 1.4
+    severity: "MEDIUM"
+    description: "File operations require validation and access controls"
+
+  # Database and API operations
+  data_paths:
+    patterns:
+      - "/api"
+      - "/v1"
+      - "/v2"
+      - "/v3"
+      - "/graphql"
+      - "/query"
+      - "/search"
+      - "/export"
+      - "/import"
+      - "/backup"
+      - "/restore"
+    risk_multiplier: 1.2
+    severity: "MEDIUM"
+    description: "API endpoints require proper authentication and rate limiting"
+
+# Framework-specific risk assessments
+frameworks:
+  NestJS:
+    base_risk_modifier: -0.1  # Well-structured framework with built-in security
+    security_features:
+      - "Built-in guards and interceptors"
+      - "Decorator-based security"
+      - "TypeScript type safety"
+    common_issues:
+      - "Missing @UseGuards decorators"
+      - "Overly permissive CORS settings"
+      - "Insufficient input validation"
+
+  Express:
+    base_risk_modifier: 0.1   # More flexibility means more potential for errors
+    security_features:
+      - "Mature ecosystem"
+      - "Extensive middleware options"
+    common_issues:
+      - "Missing authentication middleware"
+      - "Inadequate input sanitization"
+      - "Vulnerable dependencies"
+
+  "Next.js":
+    base_risk_modifier: 0.0   # Balanced framework
+    security_features:
+      - "Built-in API routes"
+      - "Server-side rendering security"
+    common_issues:
+      - "Client-side data exposure"
+      - "Missing API route protection"
+      - "CSRF vulnerabilities"
+
+  "Go HTTP":
+    base_risk_modifier: -0.05 # Compiled language with good security defaults
+    security_features:
+      - "Strong typing"
+      - "Memory safety"
+    common_issues:
+      - "Manual security implementation"
+      - "Error handling inconsistencies"
+
+  FastAPI:
+    base_risk_modifier: -0.1  # Modern framework with good security defaults
+    security_features:
+      - "Automatic data validation"
+      - "Built-in authentication support"
+    common_issues:
+      - "Dependency injection vulnerabilities"
+      - "Missing rate limiting"
+
+  Django:
+    base_risk_modifier: -0.15 # Very mature framework with excellent security
+    security_features:
+      - "Built-in CSRF protection"
+      - "ORM security features"
+      - "Extensive security middleware"
+    common_issues:
+      - "DEBUG mode in production"
+      - "Misconfigured settings"
+
+  Infrastructure:
+    base_risk_modifier: 0.2   # Infrastructure misconfigurations are critical
+    security_features:
+      - "Infrastructure as Code"
+      - "Version control"
+    common_issues:
+      - "Exposed ports and services"
+      - "Weak access controls"
+      - "Hardcoded secrets"
+
+# Authentication patterns and their risk impact
+authentication:
+  # Positive patterns (reduce risk)
+  secure_patterns:
+    jwt_with_expiry:
+      pattern: "jwt.*exp"
+      risk_modifier: -0.2
+      description: "JWT tokens with expiration are more secure"
+    
+    multi_factor_auth:
+      pattern: "mfa|2fa|totp|authenticator"
+      risk_modifier: -0.3
+      description: "Multi-factor authentication significantly improves security"
+    
+    oauth2_pkce:
+      pattern: "oauth.*pkce|code_verifier"
+      risk_modifier: -0.25
+      description: "OAuth2 with PKCE provides better security"
+    
+    session_security:
+      pattern: "secure.*cookie|httponly|samesite"
+      risk_modifier: -0.15
+      description: "Secure session configuration"
+
+  # Negative patterns (increase risk)
+  insecure_patterns:
+    basic_auth:
+      pattern: "basic.*auth|btoa|base64.*auth"
+      risk_modifier: 0.3
+      description: "Basic authentication is inherently insecure"
+    
+    plain_credentials:
+      pattern: "password.*plain|plain.*password"
+      risk_modifier: 0.5
+      description: "Plain text password handling is dangerous"
+    
+    weak_sessions:
+      pattern: "session.*id|simple.*session"
+      risk_modifier: 0.2
+      description: "Weak session management increases risk"
+
+# Input validation patterns
+input_validation:
+  # Positive patterns
+  secure_validation:
+    joi_validation:
+      pattern: "joi\\.validate|joi\\.object"
+      risk_modifier: -0.15
+      description: "Joi provides robust input validation"
+    
+    zod_validation:
+      pattern: "z\\.|zod\\."
+      risk_modifier: -0.15
+      description: "Zod provides type-safe validation"
+    
+    class_validator:
+      pattern: "@IsString|@IsNumber|@IsEmail|@Length"
+      risk_modifier: -0.15
+      description: "Class-validator decorators provide validation"
+    
+    express_validator:
+      pattern: "check\\(|body\\(|param\\(|query\\("
+      risk_modifier: -0.1
+      description: "Express-validator provides middleware validation"
+
+  # Negative patterns
+  insecure_validation:
+    no_validation:
+      pattern: "req\\.body\\.|req\\.query\\.|req\\.params\\."
+      risk_modifier: 0.25
+      description: "Direct use of request data without validation"
+    
+    eval_usage:
+      pattern: "eval\\(|Function\\("
+      risk_modifier: 0.8
+      description: "Use of eval() is extremely dangerous"
+    
+    sql_injection:
+      pattern: "\\$\\{.*\\}.*SELECT|\\+.*SELECT|concat.*SELECT"
+      risk_modifier: 0.7
+      description: "Potential SQL injection vulnerability"
+
+# Organization-specific risk patterns
+organization_patterns:
+  # High-risk services (customize for your organization)
+  critical_services:
+    payment_services:
+      patterns:
+        - "payment-service"
+        - "billing-service"
+        - "financial-service"
+        - "transaction-service"
+      risk_multiplier: 3.0
+      severity: "CRITICAL"
+      description: "Payment processing services require maximum security"
+    
+    user_services:
+      patterns:
+        - "user-service"
+        - "profile-service"
+        - "member-service"
+        - "auth-service"
+      risk_multiplier: 2.0
+      severity: "HIGH"
+      description: "User data services handle sensitive personal information"
+    
+    admin_services:
+      patterns:
+        - "admin-service"
+        - "management-service"
+        - "dashboard-service"
+      risk_multiplier: 1.8
+      severity: "HIGH"
+      description: "Administrative services manage business-critical operations"
+
+  # Medium-risk services
+  business_services:
+    reporting_services:
+      patterns:
+        - "reporting-service"
+        - "analytics-service"
+      risk_multiplier: 1.3
+      severity: "MEDIUM"
+      description: "Reporting services may expose business intelligence"
+    
+    core_services:
+      patterns:
+        - "core-service"
+        - "platform-service"
+        - "common-service"
+      risk_multiplier: 1.2
+      severity: "MEDIUM"
+      description: "Core services are foundational and widely used"
+
+# Security control checks
+security_controls:
+  # Rate limiting
+  rate_limiting:
+    express_rate_limit:
+      pattern: "rate.*limit|express.*rate"
+      risk_modifier: -0.1
+      description: "Rate limiting prevents abuse"
+    
+    nestjs_throttler:
+      pattern: "@Throttle|ThrottlerGuard"
+      risk_modifier: -0.1
+      description: "NestJS throttling provides rate limiting"
+
+  # CORS configuration
+  cors:
+    secure_cors:
+      pattern: "cors.*origin.*specific|cors.*credentials.*false"
+      risk_modifier: -0.05
+      description: "Properly configured CORS"
+    
+    insecure_cors:
+      pattern: "cors.*origin.*\\*|cors.*credentials.*true"
+      risk_modifier: 0.15
+      description: "Overly permissive CORS configuration"
+
+  # HTTPS enforcement
+  https:
+    force_https:
+      pattern: "force.*https|secure.*true|https.*only"
+      risk_modifier: -0.1
+      description: "HTTPS enforcement improves security"
+    
+    mixed_content:
+      pattern: "http://|mixed.*content"
+      risk_modifier: 0.1
+      description: "Mixed content vulnerabilities"
+
+# Compliance and regulatory considerations
+compliance:
+  pci_dss:
+    applicable_patterns:
+      - "payment"
+      - "card"
+      - "credit"
+      - "billing"
+    requirements:
+      - "Strong access controls"
+      - "Encrypted data transmission"
+      - "Regular security testing"
+    risk_multiplier: 2.0
+
+  gdpr:
+    applicable_patterns:
+      - "user"
+      - "profile"
+      - "personal"
+      - "privacy"
+    requirements:
+      - "Data minimization"
+      - "Consent management"
+      - "Right to erasure"
+    risk_multiplier: 1.5
+
+# Risk assessment matrix
+risk_matrix:
+  # Combinations that significantly increase risk
+  high_risk_combinations:
+    unauthenticated_admin:
+      conditions:
+        - "path_contains_admin"
+        - "no_authentication"
+      risk_score: 0.9
+      severity: "CRITICAL"
+      description: "Unauthenticated administrative access"
+    
+    payment_without_auth:
+      conditions:
+        - "payment_endpoint"
+        - "no_authentication"
+      risk_score: 0.85
+      severity: "CRITICAL"
+      description: "Unauthenticated payment operations"
+    
+    sql_injection_risk:
+      conditions:
+        - "dynamic_sql"
+        - "no_input_validation"
+      risk_score: 0.8
+      severity: "HIGH"
+      description: "SQL injection vulnerability"
+
+# Recommendations for different risk levels
+recommendations:
+  critical:
+    - "Implement immediate access controls"
+    - "Add multi-factor authentication"
+    - "Conduct security audit"
+    - "Apply defense in depth"
+    - "Monitor and log all access"
+
+  high:
+    - "Add authentication and authorization"
+    - "Implement input validation"
+    - "Add rate limiting"
+    - "Use HTTPS encryption"
+    - "Regular security testing"
+
+  medium:
+    - "Review access controls"
+    - "Add input sanitization"
+    - "Implement logging"
+    - "Consider rate limiting"
+    - "Update dependencies"
+
+  low:
+    - "Follow security best practices"
+    - "Regular dependency updates"
+    - "Monitor for changes"
+    - "Document security measures" 

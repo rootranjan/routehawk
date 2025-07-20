@@ -1,0 +1,326 @@
+# RouteHawk Enterprise Configuration Example
+# This file demonstrates all available configuration options for enterprise deployments
+
+version: '1.0'
+
+# Organization-specific settings
+organization:
+  organization_name: "Example Corporation"
+  domain_patterns:
+    - "*.example.com"
+    - "*.internal.example.com"
+    - "*.api.example.com"
+  
+  # Service classification rules for business criticality
+  service_classification_rules:
+    critical:
+      - "payment"
+      - "auth"
+      - "billing"
+      - "financial"
+    high:
+      - "user"
+      - "order"
+      - "inventory"
+      - "customer"
+    medium:
+      - "content"
+      - "search"
+      - "notification"
+      - "catalog"
+    low:
+      - "logging"
+      - "monitoring"
+      - "testing"
+      - "development"
+  
+  # Critical path patterns that require extra scrutiny
+  critical_path_patterns:
+    - "/payment/*"
+    - "/admin/*"
+    - "/api/auth/*"
+    - "/internal/*"
+    - "/management/*"
+    - "/billing/*"
+    - "*/financial/*"
+  
+  # Paths to exclude from security analysis
+  excluded_paths:
+    - "/health"
+    - "/metrics"
+    - "/debug"
+    - "/swagger-ui"
+    - "/api-docs"
+    - "/status"
+  
+  # Compliance frameworks your organization follows
+  compliance_frameworks:
+    - "SOX"
+    - "PCI-DSS"
+    - "GDPR"
+    - "HIPAA"
+    - "ISO27001"
+  
+  # Security baseline: standard, strict, enterprise
+  security_baseline: "enterprise"
+
+# Framework detection and analysis settings
+frameworks:
+  # Frameworks to enable for detection
+  enabled_frameworks:
+    - "nestjs"
+    - "express"
+    - "fastapi"
+    - "django"
+    - "go"
+    - "spring"
+    - "grpc"
+  
+  # Priority order for framework detection (1 = highest priority)
+  framework_priorities:
+    nestjs: 1
+    express: 2
+    fastapi: 3
+    django: 4
+    go: 5
+    spring: 6
+    grpc: 7
+  
+  # Custom file patterns for framework detection
+  file_patterns:
+    nestjs:
+      - "**/*.controller.ts"
+      - "**/*.gateway.ts"
+      - "**/*.resolver.ts"
+      - "**/*.module.ts"
+    express:
+      - "**/*route*.js"
+      - "**/*router*.js"
+      - "**/app.js"
+      - "**/server.js"
+    fastapi:
+      - "**/main.py"
+      - "**/*router*.py"
+      - "**/*api*.py"
+  
+  # Patterns to exclude from framework detection
+  exclusion_patterns:
+    global:
+      - "**/node_modules/**"
+      - "**/dist/**"
+      - "**/build/**"
+      - "**/*.test.*"
+      - "**/*.spec.*"
+      - "**/coverage/**"
+
+# Security analysis configuration
+security:
+  # Default risk threshold for reporting
+  default_risk_threshold: "medium"  # low, medium, high, critical
+  
+  # Enable AI-powered security analysis
+  enable_ai_analysis: true
+  
+  # AI model configuration
+  ai_model_config:
+    provider: "gemini"
+    model: "gemini-pro"
+    temperature: 0.1
+    max_tokens: 4096
+  
+  # Enable authentication analysis
+  auth_analysis_enabled: true
+  
+  # Specific vulnerability checks to perform
+  vulnerability_checks:
+    - "auth"
+    - "injection"
+    - "validation"
+    - "authorization"
+    - "cors"
+    - "csrf"
+  
+  # Enable compliance reporting
+  compliance_reporting: true
+
+# Performance optimization settings
+performance:
+  # Maximum parallel workers (null = auto-detect)
+  max_workers: 8
+  
+  # File processing chunk size
+  chunk_size: 1000
+  
+  # Memory limit in MB
+  memory_limit_mb: 2048
+  
+  # Enable intelligent caching
+  cache_enabled: true
+  
+  # Cache time-to-live in hours
+  cache_ttl_hours: 48
+  
+  # Progress reporting mode: simple, enhanced, quiet
+  progress_reporting: "enhanced"
+
+# Output and reporting settings
+output:
+  # Default output formats
+  default_formats:
+    - "terminal"
+    - "json"
+    - "html"
+  
+  # Custom report templates
+  custom_templates:
+    executive_summary: "templates/executive-summary.html"
+    security_report: "templates/security-detailed.html"
+  
+  # Report branding
+  report_branding:
+    organization_name: "Example Corporation Security Team"
+    logo_url: "https://example.com/assets/logo.png"
+    primary_color: "#1f2937"
+    secondary_color: "#3b82f6"
+  
+  # Export settings
+  export_settings:
+    include_metadata: true
+    include_file_details: true
+    include_source_code: false  # Security consideration
+    sanitize_paths: true
+
+# Custom risk assessment rules
+custom_risk_rules:
+  # High-risk administrative endpoints
+  - name: "Admin Endpoint High Risk"
+    rule_type: "path_pattern"
+    conditions:
+      patterns:
+        - "/admin/*"
+        - "/management/*"
+        - "/internal/*"
+        - "/ops/*"
+    risk_score_modifier: 3.0
+    risk_level_override: "high"
+    description: "Administrative endpoints require elevated security due to privileged access"
+    enabled: true
+    tags:
+      - "admin"
+      - "privileged"
+      - "internal"
+  
+  # Critical payment and financial endpoints
+  - name: "Payment Endpoint Critical"
+    rule_type: "path_pattern"
+    conditions:
+      patterns:
+        - "/payment/*"
+        - "/billing/*"
+        - "/transaction/*"
+        - "/financial/*"
+        - "/money/*"
+        - "/wallet/*"
+    risk_score_modifier: 5.0
+    risk_level_override: "critical"
+    description: "Payment endpoints are business critical and PCI-DSS sensitive"
+    enabled: true
+    tags:
+      - "payment"
+      - "financial"
+      - "pci"
+      - "critical"
+  
+  # Unauthenticated write operations
+  - name: "Unauthenticated Write Operations"
+    rule_type: "method_based"
+    conditions:
+      methods:
+        - "POST"
+        - "PUT"
+        - "DELETE"
+        - "PATCH"
+    risk_score_modifier: 2.0
+    description: "Write operations without proper authentication are high risk"
+    enabled: true
+    tags:
+      - "auth"
+      - "write-ops"
+      - "security"
+  
+  # User data and privacy endpoints
+  - name: "User Data Privacy"
+    rule_type: "path_pattern"
+    conditions:
+      patterns:
+        - "/user/*"
+        - "/profile/*"
+        - "/personal/*"
+        - "/pii/*"
+        - "/gdpr/*"
+    risk_score_modifier: 2.5
+    risk_level_override: "high"
+    description: "User data endpoints require GDPR and privacy compliance"
+    enabled: true
+    tags:
+      - "user-data"
+      - "privacy"
+      - "gdpr"
+      - "pii"
+  
+  # Development and testing endpoints in production
+  - name: "Development Endpoints in Production"
+    rule_type: "path_pattern"
+    conditions:
+      patterns:
+        - "/dev/*"
+        - "/test/*"
+        - "/debug/*"
+        - "/mock/*"
+        - "/staging/*"
+    risk_score_modifier: 4.0
+    risk_level_override: "critical"
+    description: "Development/test endpoints should not be accessible in production"
+    enabled: true
+    tags:
+      - "development"
+      - "testing"
+      - "production-leak"
+  
+  # Framework-specific security rules
+  - name: "Express Security Headers"
+    rule_type: "framework_specific"
+    conditions:
+      frameworks:
+        - "express"
+    risk_score_modifier: 1.0
+    description: "Express applications require proper security headers"
+    enabled: true
+    tags:
+      - "express"
+      - "security-headers"
+  
+  # Authentication requirement rule
+  - name: "Missing Authentication"
+    rule_type: "auth_requirement"
+    conditions:
+      required_auth_types:
+        - "jwt"
+        - "oauth"
+        - "api-key"
+        - "session"
+    risk_score_modifier: 3.0
+    description: "Endpoints without proper authentication are high risk"
+    enabled: true
+    tags:
+      - "authentication"
+      - "security"
+
+# Additional metadata
+metadata:
+  created_by: "Security Team"
+  created_date: "2024-01-15"
+  last_updated: "2024-01-20"
+  version_notes: "Initial enterprise configuration with comprehensive risk rules"
+  contact_email: "security@example.com"
+  documentation_url: "https://docs.example.com/security/routehawk" 

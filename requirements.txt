@@ -1,0 +1,17 @@
+# Existing dependencies
+pandas>=1.5.0
+schedule>=1.2.0
+pyyaml>=6.0
+plotly>=5.15.0
+streamlit>=1.25.0
+
+# Currently used but missing dependencies
+click>=8.0.0        # CLI framework
+rich>=13.0.0        # Terminal formatting
+pydantic>=2.0.0     # Data models
+
+# Git comparison features
+GitPython>=3.1.40   # Git repository operations
+pathspec>=0.11.0    # Enhanced gitignore pattern matching  
+jsondiff>=2.0.0     # Enhanced JSON diffing
+colorama>=0.4.6     # Cross-platform colored terminal output

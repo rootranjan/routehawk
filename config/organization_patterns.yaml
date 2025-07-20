@@ -1,0 +1,325 @@
+# Organization-specific patterns for attack surface discovery
+# This configuration defines patterns, risks, and rules specific to your organization
+
+organization:
+  # Organization name and configuration
+  name: "YourOrganization"
+  
+  # Service identification patterns
+  service_patterns:
+    # User/member services
+    user_services:
+      - "user-service"
+      - "member-service" 
+      - "profile-service"
+      - "account-service"
+    
+    # Authentication services
+    auth_services:
+      - "auth-service"
+      - "authentication"
+      - "identity-service"
+      - "sso-service"
+    
+    # Payment/financial services
+    payment_services:
+      - "payment-service"
+      - "billing-service"
+      - "financial-service"
+      - "transaction-service"
+    
+    # Administrative services
+    admin_services:
+      - "admin-service"
+      - "management-service"
+      - "dashboard-service"
+    
+    # Core/platform services
+    core_services:
+      - "core-service"
+      - "platform-service"
+      - "common-service"
+      - "shared-service"
+
+  # Package identification
+  internal_packages:
+    # Update these patterns to match your organization's package naming
+    core_packages:
+      - "@yourorg/nestjs-*"
+      - "@yourorg/node-*" 
+      - "@yourorg/common-*"
+      - "@yourorg/shared-*"
+      - "yourorg-*"
+    
+    # Internal libraries and utilities
+    utility_packages:
+      - "@yourorg/utils"
+      - "@yourorg/logger"
+      - "@yourorg/config"
+      - "@yourorg/validation"
+      - "@yourorg/auth"
+    
+    # Legacy packages (if any)
+    legacy_packages:
+      - "legacy-*"
+      - "old-*"
+
+  # High-risk endpoint patterns
+  high_risk_paths:
+    admin_endpoints:
+      - "/admin"
+      - "/api/admin"
+      - "/api/v1/admin"
+      - "/management"
+      - "/dashboard/admin"
+    
+    payment_endpoints:
+      - "/api/v1/payments"
+      - "/api/v1/transactions"
+      - "/api/v1/billing"
+      - "/payment"
+      - "/checkout"
+      - "/api/v1/wallet"
+    
+    internal_endpoints:
+      - "/internal"
+      - "/debug"
+      - "/actuator"
+      - "/health/debug"
+      - "/metrics/internal"
+      - "/system"
+    
+    user_data_endpoints:
+      - "/api/v1/users"
+      - "/api/v1/profile"
+      - "/api/v1/accounts" 
+      - "/user"
+      - "/profile"
+      - "/personal"
+    
+    file_operations:
+      - "/upload"
+      - "/download"
+      - "/files"
+      - "/api/v1/files"
+      - "/media"
+
+  # Authentication patterns
+  authentication:
+    guards:
+      - "AuthGuard"
+      - "JwtAuthGuard"
+      - "ApiKeyAuthGuard"
+      - "RoleGuard"
+      - "PermissionGuard"
+    
+    decorators:
+      - "@UseGuards"
+      - "@Public"
+      - "@Roles"
+      - "@Permissions"
+      - "@Auth"
+      - "@Authenticated"
+      - "@RequireAuth"
+    
+    middleware:
+      - "authMiddleware"
+      - "authenticate"
+      - "requireAuth"
+      - "isAuthenticated"
+      - "verifyToken"
+      - "checkAuth"
+
+  # Framework-specific patterns
+  frameworks:
+    nestjs:
+      controllers:
+        - "@Controller"
+      routes:
+        - "@Get"
+        - "@Post" 
+        - "@Put"
+        - "@Delete"
+        - "@Patch"
+        - "@Options"
+        - "@Head"
+      validation:
+        - "@IsString"
+        - "@IsNumber"
+        - "@IsEmail"
+        - "@IsOptional"
+        - "@IsNotEmpty"
+        - "@IsArray"
+        - "@ValidateNested"
+        - "@Type"
+        - "@Min"
+        - "@Max"
+        - "@Length"
+        - "@Matches"
+      
+    express:
+      routes:
+        - "app.get"
+        - "app.post"
+        - "app.put"
+        - "app.delete"
+        - "app.patch"
+        - "router.get"
+        - "router.post"
+        - "router.put"
+        - "router.delete"
+        - "router.use"
+      
+    go:
+      handlers:
+        - "http.HandleFunc"
+        - "mux.HandleFunc"
+        - "router.GET"
+        - "router.POST"
+        - "router.PUT"
+        - "router.DELETE"
+        - "gin.GET"
+        - "gin.POST"
+
+# Risk scoring configuration
+risk_scoring:
+  base_scores:
+    method:
+      GET: 0.1
+      POST: 0.3
+      PUT: 0.3
+      DELETE: 0.4
+      PATCH: 0.3
+      HEAD: 0.1
+      OPTIONS: 0.1
+  
+  path_multipliers:
+    "/admin": 3.0
+    "/api/v1/payments": 4.0
+    "/api/v1/transactions": 4.0
+    "/internal": 2.5
+    "/debug": 3.0
+    "/upload": 2.0
+    "/user": 1.5
+    "/auth": 2.0
+  
+  auth_modifiers:
+    no_auth: 2.0
+    unknown_auth: 1.5
+    jwt: 0.8
+    api_key: 1.0
+    basic: 1.2
+  
+  organization_specific:
+    critical_service: 2.0  # Extra caution for critical services
+    payment_service: 2.5   # Extra caution for financial services
+    admin_service: 1.8
+    public_api: 0.9
+
+# Security rules
+security_rules:
+  mandatory_auth:
+    - pattern: "/api/v1/payments/*"
+      description: "All payment endpoints must require authentication"
+      severity: "HIGH"
+    
+    - pattern: "/admin/*"
+      description: "All admin endpoints must require authentication"
+      severity: "HIGH"
+    
+    - pattern: "/api/v1/users/*"
+      description: "User data endpoints should require authentication"
+      severity: "MEDIUM"
+  
+  validation_required:
+    - methods: ["POST", "PUT", "PATCH"]
+      description: "All data modification endpoints should have input validation"
+      severity: "MEDIUM"
+  
+  rate_limiting:
+    - pattern: "/api/*"
+      description: "Public API endpoints should implement rate limiting"
+      severity: "LOW"
+  
+  organization_specific_rules:
+    - pattern: "auth-*"
+      rule: "Auth services should use strong authentication mechanisms"
+      severity: "MEDIUM"
+    
+    - pattern: "*-service"
+      rule: "All services should implement standard logging"
+      severity: "LOW"
+
+# Business logic patterns
+business_logic_patterns:
+  payment_processing:
+    patterns:
+      - "processPayment"
+      - "chargeCard"
+      - "refundPayment"
+      - "calculateTotal"
+      - "validatePayment"
+      - "processTransaction"
+    risk_level: "CRITICAL"
+    description: "Payment processing operations"
+  
+  user_data_handling:
+    patterns:
+      - "getUserData"
+      - "updateUserProfile"
+      - "deleteUser"
+      - "exportUserData"
+      - "encryptPII"
+      - "hashPassword"
+    risk_level: "HIGH"
+    description: "User data processing operations"
+  
+  admin_operations:
+    patterns:
+      - "adminAccess"
+      - "elevatePermissions"
+      - "systemOverride"
+      - "debugAccess"
+    risk_level: "HIGH"
+    description: "Administrative operations"
+
+# Exclusions (files/paths to ignore)
+exclusions:
+  test_files:
+    - "*.test.ts"
+    - "*.spec.ts"
+    - "*.e2e.ts"
+    - "**/test/**"
+    - "**/tests/**"
+    - "**/__tests__/**"
+  
+  generated_files:
+    - "**/node_modules/**"
+    - "**/dist/**"
+    - "**/build/**"
+    - "**/.next/**"
+    - "**/coverage/**"
+  
+  documentation:
+    - "*.md"
+    - "**/docs/**"
+    - "**/*.example.*"
+
+# Reporting configuration
+reporting:
+  critical_findings:
+    - "Unauthenticated payment endpoints"
+    - "Admin endpoints without proper guards"
+    - "SQL injection vulnerabilities"
+    - "File upload without validation"
+  
+  organization_metrics:
+    - "Service coverage"
+    - "Internal package adoption"
+    - "Feature flag usage"
+    - "Security compliance"
+  
+  compliance_checks:
+    - "Authentication requirements"
+    - "Data protection standards"
+    - "Internal security policies" 

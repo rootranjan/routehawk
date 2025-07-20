@@ -1,0 +1,187 @@
+# RouteHawk Prefix Resolution Configuration
+# Enterprise-grade prefix patterns for comprehensive route resolution
+
+prefix_patterns:
+  # Service category patterns based on enterprise analysis
+  service_categories:
+    extension:
+      prefixes: ['/whale', '/extension']
+      confidence: 0.9
+      service_patterns: ['extension-', 'whale-', 'browser-']
+      description: "Browser extension backend services"
+    
+    admin:
+      prefixes: ['/admin', '/api/admin', '/v1/adm']
+      confidence: 0.9
+      service_patterns: ['admin-', 'management-', 'console-']
+      description: "Administrative interfaces and management"
+    
+    merchant:
+      prefixes: ['/merchant', '/sbgo', '/api/merchant']
+      confidence: 0.8
+      service_patterns: ['merchant-', 'sbgo-', 'store-', 'seller-']
+      description: "Merchant-facing services and operations"
+    
+    payment:
+      prefixes: ['/payment', '/pay', '/cashier', '/unified-pay', '/financial']
+      confidence: 0.9
+      service_patterns: ['payment-', 'pay-', 'cashier-', 'financial-', 'billing-']
+      description: "Payment and financial services"
+    
+    user:
+      prefixes: ['/user', '/member', '/coral', '/customer', '/profile']
+      confidence: 0.8
+      service_patterns: ['user-', 'member-', 'coral-', 'customer-', 'profile-']
+      description: "User and member management services"
+    
+    platform:
+      prefixes: ['/platform', '/core', '/api/platform']
+      confidence: 0.7
+      service_patterns: ['platform-', 'core-', 'common-', 'shared-']
+      description: "Core platform and infrastructure services"
+    
+    integration:
+      prefixes: ['/integration', '/webhook', '/sync', '/connector']
+      confidence: 0.7
+      service_patterns: ['integration-', 'webhook-', 'sync-', 'connector-']
+      description: "External integrations and connectors"
+    
+    data:
+      prefixes: ['/analytics', '/reporting', '/search', '/data']
+      confidence: 0.7
+      service_patterns: ['analytics-', 'reporting-', 'search-', 'data-', 'orca-']
+      description: "Data analytics and reporting services"
+
+  # Framework-specific default patterns
+  framework_defaults:
+    nestjs:
+      api_prefix: '/api/v1'
+      health_prefix: '/health'
+      admin_prefix: '/admin'
+      docs_prefix: '/docs'
+      
+    express:
+      api_prefix: '/api'
+      gateway_prefix: '/api/gateway'
+      internal_prefix: '/api/internal'
+      
+    grpc:
+      service_prefix: '/'  # gRPC services typically start from root
+      package_prefix_enabled: true
+
+  # Multi-app deployment patterns (from package.json scripts)
+  multi_app_patterns:
+    # Pattern: start:dev:app-name -> /api/app-name
+    script_pattern: 'start:dev:(?P<app>[\w-]+)'
+    prefix_template: '/api/${app}'
+    
+    # NestJS multi-app patterns
+    nestjs_apps:
+      'extension-service': '/whale'
+      'admin-service': '/admin'
+      'web-core': '/api/web'
+      'reporting-service': '/api/reporting'
+      'worker': '/api/worker'
+      'cron': '/api/cron'
+
+  # Infrastructure-level patterns
+  infrastructure_patterns:
+    # Docker and containerization
+    container_env_vars:
+      - 'API_PREFIX'
+      - 'SERVICE_PREFIX'
+      - 'BASE_PATH'
+      - 'ROUTE_PREFIX'
+      - 'APP_PREFIX'
+    
+    # Kubernetes ingress patterns
+    k8s_ingress_classes:
+      nginx: true
+      traefik: true
+      istio: true
+    
+    # Load balancer and gateway patterns
+    gateway_indicators:
+      - 'api-gateway'
+      - 'gateway'
+      - 'proxy'
+      - 'load-balancer'
+
+  # Organization-specific variable resolution
+  variable_resolution:
+    # Common template variables and their likely values
+    template_variables:
+      '${prefix}': '/api'
+      '${PREFIX}': '/api'
+      '${apiPrefix}': '/api'
+      '${API_PREFIX}': '/api'
+      '${version}': '/v1'
+      '${VERSION}': '/v1'
+      '${env}': ''
+      '${ENV}': ''
+      '${baseUrl}': ''
+      '${BASE_URL}': ''
+    
+    # Environment-specific resolutions
+    environments:
+      development:
+        '${prefix}': '/api/dev'
+        '${env}': '/dev'
+      
+      staging:
+        '${prefix}': '/api/staging'
+        '${env}': '/staging'
+      
+      production:
+        '${prefix}': '/api'
+        '${env}': ''
+
+  # Path normalization rules
+  normalization:
+    # Remove duplicate slashes
+    remove_duplicate_slashes: true
+    
+    # Ensure leading slash
+    ensure_leading_slash: true
+    
+    # Remove trailing slashes (except for root)
+    remove_trailing_slashes: true
+    
+    # Convert to lowercase for consistency
+    lowercase_paths: false  # Keep original casing for compatibility
+
+  # Conflict resolution strategies
+  conflict_resolution:
+    # When multiple prefixes are detected, use this priority order
+    precedence_order:
+      - 'framework'      # Highest: @Controller, app.use
+      - 'configuration'  # Medium: package.json, env files
+      - 'infrastructure' # Lowest: docker, k8s
+    
+    # How to handle conflicting prefixes
+    strategy: 'merge'  # 'merge', 'override', 'ignore'
+    
+    # Maximum number of prefix levels to combine
+    max_depth: 3
+
+# Validation rules for prefix patterns
+validation:
+  # Maximum prefix length
+  max_prefix_length: 100
+  
+  # Valid prefix format (must start with /)
+  prefix_format_regex: '^/[a-zA-Z0-9/_-]*$'
+  
+  # Disallowed prefixes (security)
+  disallowed_prefixes:
+    - '/.env'
+    - '/.git'
+    - '/node_modules'
+    - '/private'
+    - '/secret'
+  
+  # Warning thresholds
+  thresholds:
+    low_confidence: 0.3
+    medium_confidence: 0.6
+    high_confidence: 0.8 
